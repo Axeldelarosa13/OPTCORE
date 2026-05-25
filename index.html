@@ -28,7 +28,10 @@
             --main-bg: #eef2f6;
             --sidebar: #ffffff;
             --sidebar-ink: #344054;
-            --mobile-nav: 76px;
+            --mobile-nav: 96px;
+            --motion-fast: 160ms;
+            --motion-med: 280ms;
+            --motion-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         * { box-sizing: border-box; }
@@ -42,6 +45,7 @@
             text-rendering: geometricPrecision;
             -webkit-font-smoothing: antialiased;
         }
+        body.modal-open { overflow: hidden; }
 
         .app-shell { height: 100vh; display: flex; background: var(--main-bg); }
         .sidebar { width: 304px; background: var(--sidebar); color: var(--sidebar-ink); flex-shrink: 0; border-right: 1px solid var(--line-soft); box-shadow: 1px 0 0 rgba(16, 24, 40, 0.02); }
@@ -54,17 +58,29 @@
         .sidebar-footer .bg-teal-600 { background: #0f766e !important; }
         .sidebar-footer p:first-child { color: #101828 !important; }
         .sidebar-footer p:last-child { color: #667085 !important; }
-        .surface { background: var(--panel); border: 1px solid var(--line-soft); border-radius: 8px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); }
-        .surface-hover { transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
-        .surface-hover:hover { border-color: #98a2b3; box-shadow: 0 10px 22px rgba(16, 24, 40, 0.08); transform: translateY(-1px); }
+        .surface { background: var(--panel); border: 1px solid var(--line-soft); border-radius: 8px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); transition: border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease, transform var(--motion-fast) ease; }
+        .surface-hover { position: relative; overflow: hidden; transition: border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease, transform var(--motion-fast) ease; }
+        .surface-hover::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--primary); transform: scaleY(0); transform-origin: bottom; transition: transform var(--motion-med) var(--motion-soft); }
+        .surface-hover:hover { border-color: #98a2b3; box-shadow: 0 14px 30px rgba(16, 24, 40, 0.10); transform: translateY(-3px); }
+        .surface-hover:hover::after { transform: scaleY(1); }
 
-        .nav-btn { color: #475467; border-left: 3px solid transparent; background: transparent; }
-        .nav-btn:hover { background: #f2f4f7; color: #101828; }
-        .nav-active { background: #e6f4f1; color: #0f766e; border-left-color: #0f766e; }
+        .nav-btn { color: #475467; border-left: 3px solid transparent; background: transparent; transition: background var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) ease, border-color var(--motion-fast) ease; }
+        .nav-btn i { transition: transform var(--motion-fast) ease; }
+        .nav-btn:hover { background: #f2f4f7; color: #101828; transform: translateX(2px); }
+        .nav-btn:hover i { transform: scale(1.08); }
+        .nav-active { background: #e6f4f1; color: #0f766e; border-left-color: #0f766e; box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.08); }
+        .nav-active i { animation: iconPop 260ms var(--motion-soft); }
 
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: lift 240ms ease-out; }
-        @keyframes lift { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content.active { display: block; animation: lift var(--motion-med) var(--motion-soft); }
+        @keyframes lift { from { opacity: 0; transform: translateY(10px) scale(0.995); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes cardRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes iconPop { 0% { transform: scale(0.86); } 70% { transform: scale(1.12); } 100% { transform: scale(1); } }
+        @keyframes loginIn { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes badgePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(180, 35, 24, 0.34); transform: scale(1); } 50% { box-shadow: 0 0 0 7px rgba(180, 35, 24, 0); transform: scale(1.06); } }
+        @keyframes buttonSweep { from { transform: translateX(-120%) skewX(-16deg); } to { transform: translateX(180%) skewX(-16deg); } }
+        @keyframes headerGlow { 0% { transform: translateX(-35%); opacity: 0.45; } 50% { opacity: 0.9; } 100% { transform: translateX(35%); opacity: 0.45; } }
+        @keyframes loginBg { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
 
         .input-pro {
             width: 100%;
@@ -86,6 +102,8 @@
         }
 
         .btn {
+            position: relative;
+            overflow: hidden;
             min-height: 40px;
             display: inline-flex;
             align-items: center;
@@ -98,8 +116,10 @@
             white-space: nowrap;
         }
 
-        .btn:active { transform: translateY(1px); }
+        .btn:active { transform: translateY(1px) scale(0.99); }
         .btn-primary { color: #ffffff; background: var(--primary); padding: 0.65rem 1rem; }
+        .btn-primary::after { content: ""; position: absolute; top: -35%; bottom: -35%; left: 0; width: 42%; background: rgba(255, 255, 255, 0.18); transform: translateX(-120%) skewX(-16deg); pointer-events: none; }
+        .btn-primary:hover::after { animation: buttonSweep 650ms ease; }
         .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 8px 16px rgba(15, 118, 110, 0.20); }
         .btn-secondary { color: #344054; background: #ffffff; border: 1px solid #d0d5dd; padding: 0.65rem 1rem; }
         .btn-secondary:hover { border-color: #98a2b3; background: #f9fafb; }
@@ -120,15 +140,78 @@
         .chart-box { height: 290px; position: relative; }
         .mobile-only { display: none; }
         .mobile-card-actions .btn { width: auto !important; }
+        .contact-actions .btn { width: auto; }
+        .creator-credit { color: #667085; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.02em; }
+        .creator-credit a { color: #0f766e; font-weight: 900; }
+        .creator-credit a:hover { text-decoration: underline; }
+        .reminder-button { position: relative; flex-shrink: 0; }
+        .reminder-badge {
+            position: absolute;
+            top: -0.35rem;
+            right: -0.35rem;
+            min-width: 1.15rem;
+            height: 1.15rem;
+            padding: 0 0.25rem;
+            border-radius: 999px;
+            background: #b42318;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            font-size: 0.62rem;
+            font-weight: 900;
+            line-height: 0.95rem;
+            text-align: center;
+        }
+        .reminder-badge:not([hidden]) { animation: badgePulse 1.8s ease-in-out infinite; }
+        .reminder-badge[hidden] { display: none; }
+        .reminder-list { display: grid; gap: 0.75rem; }
+        .reminder-row { border: 1px solid var(--line-soft); border-radius: 8px; padding: 0.85rem; background: #ffffff; transition: transform var(--motion-fast) ease, border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease; }
+        .reminder-row:hover { transform: translateY(-2px); border-color: #98a2b3; box-shadow: 0 10px 22px rgba(16, 24, 40, 0.08); }
+        .daily-focus { display: grid; gap: 0.9rem; grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .focus-card { min-height: 112px; border: 1px solid var(--line-soft); border-radius: 8px; padding: 1rem; background: #ffffff; transition: transform var(--motion-fast) ease, border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease; }
+        .focus-card:hover { transform: translateY(-2px); border-color: #98a2b3; box-shadow: 0 10px 22px rgba(16, 24, 40, 0.08); }
+        .focus-card-primary { border-color: rgba(15, 118, 110, 0.28); background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 100%); }
+        .section-title { font-size: 0.92rem; font-weight: 900; color: #101828; }
+        .section-subtitle { font-size: 0.76rem; font-weight: 700; color: #667085; }
 
-        #loginScreen { z-index: 9999; background: #eef2f6; }
+        #loginScreen { z-index: 9999; background: linear-gradient(135deg, #eef2f6 0%, #f8fafc 45%, #e6f4f1 100%); background-size: 180% 180%; animation: loginBg 12s ease-in-out infinite alternate; }
+        #loginScreen .surface { animation: loginIn 420ms var(--motion-soft); }
         #toast { pointer-events: none; }
         [id^="modal-"] > .surface { max-height: calc(100vh - 2rem); overflow-y: auto; }
 
-        .main-header { background: rgba(255, 255, 255, 0.96) !important; border-bottom: 1px solid var(--line-soft) !important; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04); }
+        .main-header { position: relative; overflow: hidden; min-height: 5rem; background: rgba(255, 255, 255, 0.96) !important; border-bottom: 1px solid var(--line-soft) !important; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04); }
+        .main-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(15, 118, 110, 0.65), rgba(37, 99, 235, 0.55), transparent); animation: headerGlow 7s ease-in-out infinite alternate; pointer-events: none; }
         #viewTitle { font-size: 1.45rem; }
         #viewContainer { background: #f8fafc; }
         #kpiGrid .surface { border-left: 4px solid #0f766e; }
+        @media (min-width: 900px) {
+            .daily-focus { grid-template-columns: 1.2fr 1fr 1fr; }
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .tab-content.active > .surface,
+            .tab-content.active > .grid > .surface,
+            .tab-content.active article.surface,
+            #quickActions .surface,
+            #kpiGrid .surface {
+                animation: cardRise 320ms var(--motion-soft) both;
+            }
+            #quickActions .surface:nth-child(2), #kpiGrid .surface:nth-child(2), .tab-content.active > .surface:nth-child(2) { animation-delay: 45ms; }
+            #quickActions .surface:nth-child(3), #kpiGrid .surface:nth-child(3), .tab-content.active > .surface:nth-child(3) { animation-delay: 90ms; }
+            #quickActions .surface:nth-child(4), #kpiGrid .surface:nth-child(4), .tab-content.active > .surface:nth-child(4) { animation-delay: 135ms; }
+            #appointmentsGrid article:nth-child(2), #patientsMobileList .surface:nth-child(2), #inventoryMobileList .surface:nth-child(2) { animation-delay: 55ms; }
+            #appointmentsGrid article:nth-child(3), #patientsMobileList .surface:nth-child(3), #inventoryMobileList .surface:nth-child(3) { animation-delay: 110ms; }
+            [id^="modal-"].flex > .surface { animation: loginIn 240ms var(--motion-soft); }
+            #toast:not(.opacity-0) > div { animation: loginIn 220ms var(--motion-soft); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
 
         @media (max-width: 1100px) {
             .sidebar { width: 86px; }
@@ -155,78 +238,106 @@
                 border-top: 1px solid rgba(208, 213, 221, 0.9);
                 box-shadow: 0 -14px 30px rgba(15, 23, 42, 0.14);
             }
-            .sidebar > .sidebar-inner { display: flex; width: 100%; padding: 0.45rem 0.35rem 0.35rem; }
+            .sidebar > .sidebar-inner { display: flex; width: 100%; padding: 0.5rem 0.45rem 0.55rem; }
             .brand-block, .sidebar-section, .sidebar-footer { display: none; }
             .sidebar nav {
                 display: flex;
-                gap: 0.15rem;
+                align-items: center;
+                gap: 0.22rem;
                 width: 100%;
                 overflow-x: auto;
+                overflow-y: hidden;
                 scroll-snap-type: x proximity;
-                padding-bottom: 0.2rem;
+                height: 100%;
+                padding: 0.2rem 0.1rem 0.35rem;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
                 justify-content: flex-start;
             }
             .sidebar nav::-webkit-scrollbar { display: none; }
             .nav-btn {
-                min-width: 58px;
-                max-width: 74px;
-                height: 58px;
-                flex: 1 0 58px;
+                min-width: 70px;
+                max-width: 84px;
+                height: 72px;
+                flex: 0 0 70px;
                 border-left: none;
                 border-top: 3px solid transparent;
                 flex-direction: column;
-                gap: 0.18rem;
-                font-size: 0.52rem;
-                padding: 0.3rem 0.2rem;
+                gap: 0.3rem;
+                font-size: 0.58rem;
+                padding: 0.48rem 0.25rem 0.5rem;
                 scroll-snap-align: start;
                 border-radius: 10px;
+                overflow: visible;
             }
-            .nav-btn i { width: 1.1rem; height: 1.1rem; }
+            .nav-btn i { width: 1.18rem; height: 1.18rem; flex-shrink: 0; }
             .nav-active { border-left-color: transparent; border-top-color: var(--primary); background: #e6f4f1; color: var(--primary); }
-            .sidebar-label { display: block; max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.52rem; line-height: 1; }
+            .sidebar-label { display: block; max-width: 68px; min-height: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.58rem; line-height: 1.12; padding-bottom: 1px; }
             #mainApp { min-height: 100svh; width: 100%; padding-bottom: calc(var(--mobile-nav) + env(safe-area-inset-bottom)); overflow: visible; }
             .main-header {
                 position: sticky;
                 top: 0;
                 z-index: 45;
-                height: auto;
+                height: auto !important;
+                min-height: 0 !important;
                 align-items: flex-start;
-                gap: 0.75rem;
-                padding: 0.7rem 0.75rem;
+                gap: 0.55rem;
+                padding: 0.6rem 0.75rem 0.7rem !important;
                 flex-direction: column;
                 backdrop-filter: blur(14px);
             }
             .main-header > div:first-child { width: 100%; min-width: 0; }
-            .main-header > div:last-child { width: 100%; display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+            #headerActions { width: 100%; display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; align-items: stretch; }
             .main-header .surface { justify-content: center; }
             .main-header .input-pro { min-width: 0 !important; }
+            #headerBranchWrap { grid-column: 1 / 2; width: 100%; }
+            #cashBalanceChip { grid-column: 2 / 3; width: 100%; white-space: nowrap; }
+            #headerBranchWrap[hidden] ~ #cashBalanceChip { grid-column: 1 / -1; }
+            #branchSelect { min-height: 42px; height: 42px; padding-top: 0.45rem; padding-bottom: 0.45rem; }
+            #cashBalanceChip { min-height: 34px; padding: 0.35rem 0.65rem; }
+            #cashBalanceChip span { font-size: 0.72rem; }
             #viewTitle { font-size: 1rem; line-height: 1.15; }
             #roleBadge { display: none; }
             .main-header > div:first-child > div:last-child { font-size: 0.58rem; gap: 0.25rem; }
             #currentBranchLabel, #currentDate { min-width: 0; }
             #viewContainer { padding: 0.65rem 0.65rem calc(var(--mobile-nav) + 1rem); overflow: visible; }
-            .tab-content.active { animation: none; }
+            .tab-content.active { animation: lift 180ms var(--motion-soft); }
             .chart-box { height: 220px; }
             .desktop-only { display: none !important; }
             .mobile-only { display: block !important; }
             .btn:not(.btn-icon) { width: 100%; min-height: 44px; white-space: normal; }
             .btn-icon { width: 42px; min-width: 42px; min-height: 42px; }
+            .main-header .btn { min-height: 42px; font-size: 0.76rem; padding: 0.55rem 0.6rem; }
             .input-pro { min-height: 44px; font-size: 16px; }
             .surface { border-radius: 8px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04); }
             .status { max-width: 100%; white-space: nowrap; }
             [id^="modal-"].flex { align-items: flex-end; padding: 0.5rem; }
             [id^="modal-"] > .surface { width: 100%; max-height: 92svh; padding: 1rem; border-radius: 16px 16px 8px 8px; }
+            #modal-patientDetail .modal-actions { position: sticky; bottom: -1rem; background: #fff; border-top: 1px solid var(--line-soft); padding: 0.75rem 0 0.25rem; }
+            #modal-quickSearch .surface > .relative { position: sticky; top: -1rem; z-index: 5; background: #fff; padding-top: 0.25rem; padding-bottom: 0.5rem; }
+            .contact-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .contact-actions .btn { width: 100% !important; }
             #toast { left: 0.75rem; right: 0.75rem; bottom: calc(var(--mobile-nav) + 1rem); transform: translateY(var(--tw-translate-y)); }
             #toast > div { width: 100%; justify-content: center; border-radius: 12px; padding: 0.9rem 1rem; }
             #kpiGrid .surface, #purchaseKpis .surface, #reportKpis .surface { padding: 1rem; }
+            #tab-dashboard > .surface:first-child { padding: 1rem !important; }
+            #tab-dashboard > .surface:first-child h3 { font-size: 1.12rem; line-height: 1.25; }
+            #tab-dashboard > .surface:first-child p { font-size: 0.78rem; }
+            #tab-dashboard > .surface:first-child .grid.grid-cols-3 { gap: 0.45rem; }
+            #tab-dashboard > .surface:first-child .grid.grid-cols-3 > div { padding: 0.55rem; }
+            #quickActions { gap: 0.5rem; }
+            #quickActions button { padding: 0.75rem; min-height: 64px; }
+            #quickActions button .w-10 { width: 2rem; height: 2rem; }
+            #quickActions button .text-sm { font-size: 0.78rem; }
+            #quickActions button .text-xs { font-size: 0.68rem; }
         }
 
         @media (max-width: 420px) {
             .grid-cols-2 { grid-template-columns: minmax(0, 1fr) !important; }
-            .sidebar-label { max-width: 54px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-            .nav-btn { min-width: 54px; flex-basis: 54px; }
+            #headerActions { grid-template-columns: minmax(0, 1fr) auto !important; }
+            #currentDate { display: none; }
+            .sidebar-label { max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.55rem; }
+            .nav-btn { min-width: 64px; flex-basis: 64px; height: 70px; }
         }
     </style>
 </head>
@@ -266,6 +377,20 @@
                 <div class="border border-slate-200 rounded-lg p-2">alcala_doc<br><span class="text-slate-400">1234</span></div>
                 <div class="border border-slate-200 rounded-lg p-2">ortiz_caja<br><span class="text-slate-400">1234</span></div>
             </div>
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button type="button" onclick="enterLocalAdmin()" class="btn btn-secondary">
+                    <i data-lucide="hard-drive" class="w-4 h-4"></i>
+                    Entrar local
+                </button>
+                <button type="button" onclick="resetLocalAccess()" class="btn btn-secondary">
+                    <i data-lucide="key-round" class="w-4 h-4"></i>
+                    Restaurar acceso
+                </button>
+            </div>
+            <p class="text-[11px] text-slate-400 font-semibold mt-3 text-center">Modo local: no borra pacientes, ventas ni expedientes.</p>
+            <p class="creator-credit text-center mt-5">
+                Creada por <a href="https://delarosaleyva.shop" target="_blank" rel="noopener">delarosaleyva.shop</a>
+            </p>
         </div>
     </div>
 
@@ -286,14 +411,14 @@
 
                 <nav class="space-y-1">
                     <p class="sidebar-section text-[10px] font-black text-slate-500 uppercase tracking-widest px-3 mb-3">Clínica</p>
-                    <button onclick="navigate('dashboard')" data-nav="dashboard" class="nav-btn nav-active w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Dashboard">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="sidebar-label">Dashboard</span>
+                    <button onclick="navigate('dashboard')" data-nav="dashboard" class="nav-btn nav-active w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Inicio">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="sidebar-label">Inicio</span>
                     </button>
-                    <button onclick="navigate('appointments')" data-nav="appointments" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Agenda">
-                        <i data-lucide="calendar-days" class="w-5 h-5"></i><span class="sidebar-label">Agenda</span>
+                    <button onclick="navigate('appointments')" data-nav="appointments" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Citas">
+                        <i data-lucide="calendar-days" class="w-5 h-5"></i><span class="sidebar-label">Citas</span>
                     </button>
-                    <button onclick="navigate('patients')" data-nav="patients" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Expedientes">
-                        <i data-lucide="users" class="w-5 h-5"></i><span class="sidebar-label">Expedientes</span>
+                    <button onclick="navigate('patients')" data-nav="patients" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Clientes">
+                        <i data-lucide="users" class="w-5 h-5"></i><span class="sidebar-label">Clientes</span>
                     </button>
                     <button onclick="navigate('followups')" data-nav="followups" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Seguimiento">
                         <i data-lucide="messages-square" class="w-5 h-5"></i><span class="sidebar-label">Seguimiento</span>
@@ -302,18 +427,18 @@
                         <i data-lucide="clipboard-check" class="w-5 h-5"></i><span class="sidebar-label">Consulta</span>
                     </button>
                     <button onclick="navigate('lab')" data-nav="lab" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Laboratorio">
-                        <i data-lucide="flask-conical" class="w-5 h-5"></i><span class="sidebar-label">Laboratorio</span>
+                        <i data-lucide="flask-conical" class="w-5 h-5"></i><span class="sidebar-label">Lab</span>
                     </button>
 
                     <p class="sidebar-section text-[10px] font-black text-slate-500 uppercase tracking-widest px-3 mt-7 mb-3">Administración</p>
                     <button onclick="navigate('inventory')" data-nav="inventory" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Inventario">
-                        <i data-lucide="boxes" class="w-5 h-5"></i><span class="sidebar-label">Inventario</span>
+                        <i data-lucide="boxes" class="w-5 h-5"></i><span class="sidebar-label">Stock</span>
                     </button>
                     <button onclick="navigate('purchases')" data-nav="purchases" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Compras">
                         <i data-lucide="truck" class="w-5 h-5"></i><span class="sidebar-label">Compras</span>
                     </button>
-                    <button onclick="navigate('sales')" data-nav="sales" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Caja POS">
-                        <i data-lucide="shopping-cart" class="w-5 h-5"></i><span class="sidebar-label">Caja POS</span>
+                    <button onclick="navigate('sales')" data-nav="sales" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Caja">
+                        <i data-lucide="shopping-cart" class="w-5 h-5"></i><span class="sidebar-label">Caja</span>
                     </button>
                     <button onclick="navigate('reports')" data-nav="reports" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all" title="Reportes">
                         <i data-lucide="bar-chart-3" class="w-5 h-5"></i><span class="sidebar-label">Reportes</span>
@@ -336,17 +461,24 @@
                             <i data-lucide="log-out" class="w-4 h-4"></i>
                             <span class="user-card-body">Cerrar sesión</span>
                         </button>
+                        <p class="creator-credit user-card-body text-center mt-3">
+                            Creada por <a href="https://delarosaleyva.shop" target="_blank" rel="noopener">delarosaleyva.shop</a>
+                        </p>
                     </div>
                 </div>
             </div>
         </aside>
 
         <main id="mainApp" class="hidden flex-1 flex flex-col min-w-0 overflow-hidden">
-            <header class="main-header h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+            <header class="main-header bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
                 <div class="min-w-0">
                     <div class="flex items-center gap-2 mb-1">
-                        <h2 id="viewTitle" class="text-xl font-black text-slate-950 truncate">Dashboard Ejecutivo</h2>
+                        <h2 id="viewTitle" class="text-xl font-black text-slate-950 truncate">Inicio</h2>
                         <span id="roleBadge" class="status status-slate">Demo</span>
+                        <button id="headerReminderBtn" onclick="openAppointmentReminders()" class="btn btn-secondary btn-icon reminder-button" data-permission="appointments.view" title="Recordatorios de citas" aria-label="Recordatorios de citas">
+                            <i data-lucide="bell" class="w-4 h-4"></i>
+                            <span id="reminderBadge" class="reminder-badge" hidden>0</span>
+                        </button>
                     </div>
                     <div class="flex items-center gap-2 text-[11px] font-black text-slate-500 uppercase tracking-widest">
                         <span id="currentBranchLabel">Vista global</span>
@@ -354,8 +486,8 @@
                         <span id="currentDate">Cargando...</span>
                     </div>
                 </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="flex items-center gap-2">
+                <div id="headerActions" class="flex flex-wrap items-center gap-3">
+                    <div id="headerBranchWrap" class="flex items-center gap-2">
                         <label for="branchSelect" class="sr-only">Sucursal</label>
                         <select id="branchSelect" onchange="switchBranch()" class="input-pro min-w-[160px]">
                             <option value="Global">Vista global</option>
@@ -364,13 +496,17 @@
                             <option value="Lupitas">Óptica Lupitas</option>
                         </select>
                     </div>
-                    <div class="surface px-3 py-2 flex items-center gap-2">
+                    <div id="cashBalanceChip" class="surface px-3 py-2 flex items-center gap-2">
                         <i data-lucide="banknote" class="w-4 h-4 text-teal-600"></i>
                         <span class="text-xs font-black text-slate-700">Caja: <span id="cashBalance">$0.00</span></span>
                     </div>
+                    <button id="headerQuickSearchBtn" onclick="openQuickSearch()" class="btn btn-secondary" data-permission="patients.view">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        Buscar
+                    </button>
                     <button id="headerNewPatientBtn" onclick="showModal('newPatient')" class="btn btn-primary">
                         <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        Registrar paciente
+                        Cliente
                     </button>
                 </div>
             </header>
@@ -380,30 +516,32 @@
                     <div class="surface p-5 md:p-6 border-l-4 border-teal-700">
                         <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-5">
                             <div>
-                                <p class="text-[11px] font-black text-teal-700 uppercase tracking-widest">Centro de operación óptica</p>
-                                <h3 class="text-2xl font-black text-slate-950 mt-1">Control clínico, comercial y laboratorio en una sola vista</h3>
-                                <p class="text-sm font-semibold text-slate-500 mt-2 max-w-3xl">Agenda, expedientes médicos, recetas, órdenes, inventario y caja con una interfaz pensada para recepción, optometría y administración.</p>
+                                <p class="text-[11px] font-black text-teal-700 uppercase tracking-widest">Hoy en la óptica</p>
+                                <h3 class="text-2xl font-black text-slate-950 mt-1">Citas, clientes y pendientes del día</h3>
+                                <p class="text-sm font-semibold text-slate-500 mt-2 max-w-3xl">Una vista limpia para atender primero lo que está pasando ahora.</p>
                             </div>
                             <div class="grid grid-cols-3 gap-3 min-w-full xl:min-w-[420px]">
                                 <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase">Clínica</p>
-                                    <p class="text-sm font-black text-slate-900">Expediente</p>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase">Cliente</p>
+                                    <p class="text-sm font-black text-slate-900">Ficha</p>
                                 </div>
                                 <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase">Taller</p>
-                                    <p class="text-sm font-black text-slate-900">Órdenes</p>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase">Entrega</p>
+                                    <p class="text-sm font-black text-slate-900">Orden</p>
                                 </div>
                                 <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase">Caja</p>
-                                    <p class="text-sm font-black text-slate-900">POS</p>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase">Aviso</p>
+                                    <p class="text-sm font-black text-slate-900">Seguimiento</p>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div id="dailyFocus" class="daily-focus"></div>
+                    <div id="quickActions" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
                     <div id="kpiGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-4"></div>
 
                     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                        <div class="xl:col-span-7 surface p-5">
+                        <div id="dashboardSalesPanel" data-permission="reports.view" class="xl:col-span-7 surface p-5">
                             <div class="flex items-center justify-between mb-4">
                                 <div>
                                     <h3 class="font-black text-slate-950">Ventas por día</h3>
@@ -417,7 +555,7 @@
                             <div class="chart-box"><canvas id="salesChart"></canvas></div>
                         </div>
 
-                        <div class="xl:col-span-5 surface p-5">
+                        <div id="dashboardBranchPanel" data-permission="reports.view" class="xl:col-span-5 surface p-5">
                             <div class="flex items-center justify-between mb-4">
                                 <div>
                                     <h3 class="font-black text-slate-950">Ingreso por sucursal</h3>
@@ -450,7 +588,7 @@
                             <div id="urgentFollowupsList" class="space-y-3"></div>
                         </div>
 
-                        <div class="surface p-5">
+                        <div id="dashboardStockPanel" data-permission="inventory.view" class="surface p-5">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="font-black text-slate-950">Stock crítico</h3>
                                 <button onclick="navigate('inventory')" class="btn btn-secondary btn-icon" title="Abrir inventario" aria-label="Abrir inventario">
@@ -474,8 +612,12 @@
 
                 <section id="tab-appointments" class="tab-content space-y-6">
                     <div class="surface p-5">
+                        <div class="mb-4">
+                            <h3 class="section-title">Nueva cita</h3>
+                            <p class="section-subtitle">Fecha, hora, cliente y doctor.</p>
+                        </div>
                         <div class="flex flex-col lg:flex-row lg:items-end gap-4">
-                            <div class="grid grid-cols-1 md:grid-cols-6 gap-3 flex-1">
+                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-3 flex-1">
                                 <div>
                                     <label class="label" for="apptDate">Fecha</label>
                                     <input id="apptDate" type="date" class="input-pro">
@@ -485,7 +627,7 @@
                                     <input id="apptTime" type="time" class="input-pro" value="10:00">
                                 </div>
                                 <div>
-                                    <label class="label" for="apptPatient">Paciente</label>
+                                    <label class="label" for="apptPatient">Cliente</label>
                                     <select id="apptPatient" class="input-pro"></select>
                                 </div>
                                 <div>
@@ -508,16 +650,36 @@
                             </div>
                             <button onclick="saveAppointment()" class="btn btn-primary" data-requires-permission="appointments.write">
                                 <i data-lucide="calendar-plus" class="w-4 h-4"></i>
-                                Agendar
+                                Guardar cita
                             </button>
                         </div>
                     </div>
 
                     <div class="surface p-5">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                            <div>
+                                <h3 class="font-black text-slate-950">Recordatorios de citas</h3>
+                                <p id="appointmentReminderSummary" class="text-xs font-semibold text-slate-500">Revisa las próximas citas antes de que se te pasen.</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="openAppointmentReminders()" class="btn btn-secondary">
+                                    <i data-lucide="bell" class="w-4 h-4"></i>
+                                    Ver recordatorios
+                                </button>
+                                <button onclick="requestAppointmentNotificationPermission()" class="btn btn-secondary">
+                                    <i data-lucide="bell-ring" class="w-4 h-4"></i>
+                                    Avisos
+                                </button>
+                            </div>
+                        </div>
+                        <div id="appointmentReminderStrip" class="reminder-list md:grid-cols-3"></div>
+                    </div>
+
+                    <div class="surface p-5">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
                             <div>
-                                <h3 class="font-black text-slate-950">Agenda operativa</h3>
-                                <p class="text-xs font-semibold text-slate-500">Citas, entregas y seguimientos por sucursal</p>
+                                <h3 class="font-black text-slate-950">Citas</h3>
+                                <p class="text-xs font-semibold text-slate-500">Consultas, entregas y seguimientos.</p>
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="setAppointmentFilter('all')" data-appt-filter="all" class="btn btn-secondary">Todas</button>
@@ -534,7 +696,7 @@
                         <div class="flex flex-col lg:flex-row gap-3 lg:items-center">
                             <div class="relative flex-1">
                                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
-                                <input type="text" id="patientSearch" oninput="renderPatients()" placeholder="Buscar por nombre, teléfono o correo..." class="input-pro pl-10">
+                                <input type="text" id="patientSearch" oninput="debouncedRenderPatients()" placeholder="Buscar por nombre, teléfono o correo..." class="input-pro pl-10">
                             </div>
                             <button onclick="showModal('newPatient')" class="btn btn-primary" data-permission="patients.write">
                                 <i data-lucide="user-plus" class="w-4 h-4"></i>
@@ -785,7 +947,7 @@
                         <div class="flex flex-col lg:flex-row gap-3 lg:items-center">
                             <div class="relative flex-1">
                                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
-                                <input id="inventorySearch" type="text" oninput="renderInventory()" placeholder="Buscar por SKU, producto o categoría..." class="input-pro pl-10">
+                                <input id="inventorySearch" type="text" oninput="debouncedRenderInventory()" placeholder="Buscar por SKU, producto o categoría..." class="input-pro pl-10">
                             </div>
                             <select id="inventoryCategory" onchange="renderInventory()" class="input-pro lg:w-48">
                                 <option value="all">Todas las categorías</option>
@@ -911,7 +1073,7 @@
                                 </div>
                                 <div class="relative lg:w-80">
                                     <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
-                                    <input id="posSearch" oninput="renderPOS()" class="input-pro pl-10" placeholder="Buscar producto...">
+                                    <input id="posSearch" oninput="debouncedRenderPOS()" class="input-pro pl-10" placeholder="Buscar producto...">
                                 </div>
                             </div>
                             <div id="posProducts" class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4"></div>
@@ -1167,7 +1329,7 @@
         <div class="surface w-full max-w-xl p-6 shadow-2xl">
             <div class="flex items-start justify-between mb-5">
                 <div>
-                    <h3 class="text-xl font-black text-slate-950">Nuevo paciente</h3>
+                    <h3 class="text-xl font-black text-slate-950">Nuevo cliente</h3>
                     <p class="text-xs font-semibold text-slate-500">Expediente base para consulta, POS y laboratorio</p>
                 </div>
                 <button onclick="hideModal('newPatient')" class="btn btn-secondary btn-icon" aria-label="Cerrar"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -1276,7 +1438,7 @@
                 <button onclick="hideModal('patientDetail')" class="btn btn-secondary btn-icon" aria-label="Cerrar"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div id="patientDetailBody" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            <div class="flex flex-col sm:flex-row justify-end gap-3 mt-5">
+            <div class="modal-actions flex flex-col sm:flex-row justify-end gap-3 mt-5">
                 <button onclick="hideModal('patientDetail')" class="btn btn-secondary">Cerrar</button>
                 <button id="detailSaveMedical" class="btn btn-secondary">
                     <i data-lucide="save" class="w-4 h-4"></i>
@@ -1294,6 +1456,43 @@
         </div>
     </div>
 
+    <div id="modal-quickSearch" class="fixed inset-0 z-[500] hidden items-center justify-center p-4 bg-slate-950/60">
+        <div class="surface w-full max-w-2xl p-6 shadow-2xl">
+            <div class="flex items-start justify-between gap-4 mb-5">
+                <div>
+                    <h3 class="text-xl font-black text-slate-950">Buscar cliente</h3>
+                    <p class="text-xs font-semibold text-slate-500">Acceso rápido a expediente, seguimiento o consulta</p>
+                </div>
+                <button onclick="hideModal('quickSearch')" class="btn btn-secondary btn-icon" aria-label="Cerrar"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="relative mb-4">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                <input id="quickPatientSearch" oninput="debouncedQuickPatientSearch()" class="input-pro pl-10" placeholder="Nombre, teléfono o correo">
+            </div>
+            <div id="quickSearchResults" class="space-y-3 max-h-[58vh] overflow-y-auto scrollbar-thin"></div>
+        </div>
+    </div>
+
+    <div id="modal-appointmentReminders" class="fixed inset-0 z-[500] hidden items-center justify-center p-4 bg-slate-950/60">
+        <div class="surface w-full max-w-2xl p-6 shadow-2xl">
+            <div class="flex items-start justify-between gap-4 mb-5">
+                <div>
+                    <h3 class="text-xl font-black text-slate-950">Recordatorios de citas</h3>
+                    <p id="appointmentReminderModalSummary" class="text-xs font-semibold text-slate-500">Próximas citas por atender</p>
+                </div>
+                <button onclick="hideModal('appointmentReminders')" class="btn btn-secondary btn-icon" aria-label="Cerrar"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="appointmentReminderModalList" class="reminder-list max-h-[58vh] overflow-y-auto scrollbar-thin"></div>
+            <div class="flex flex-col sm:flex-row justify-end gap-3 mt-5 pt-4 border-t border-slate-100">
+                <button onclick="requestAppointmentNotificationPermission()" class="btn btn-secondary">
+                    <i data-lucide="bell-ring" class="w-4 h-4"></i>
+                    Activar avisos
+                </button>
+                <button onclick="hideModal('appointmentReminders')" class="btn btn-primary">Listo</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[1000] transform translate-y-24 opacity-0 transition-all duration-300">
         <div class="bg-slate-950 text-white px-5 py-3 rounded-lg shadow-2xl flex items-center gap-3 border border-slate-700">
             <i id="toastIcon" data-lucide="info" class="w-5 h-5 text-blue-300"></i>
@@ -1302,23 +1501,25 @@
     </div>
 
     <script>
-        const APP_VERSION = '5.2.1';
+        const APP_VERSION = '5.9.0';
         const STORAGE_KEY = 'opti_core_professional_v4';
         const SESSION_KEY = 'opti_session_v4';
+        const memoryStorage = {};
+        const notifiedAppointmentReminders = new Set();
         const BRANCHES = ['Alcalá', 'Ortiz', 'Lupitas'];
         const LAB_STATUSES = ['Pendiente', 'Laboratorio', 'Listo', 'Entregado'];
         const VIEW_META = {
-            dashboard: ['Dashboard Ejecutivo', 'Vista global de operación'],
-            appointments: ['Agenda Clínica', 'Control de citas y entregas'],
-            patients: ['Expedientes', 'Pacientes y antecedentes'],
-            followups: ['Seguimiento', 'CRM clínico y recordatorios'],
-            exams: ['Consulta Optométrica', 'Recetas, diagnóstico y seguimiento'],
+            dashboard: ['Inicio', 'Resumen del día'],
+            appointments: ['Citas', 'Agenda y entregas'],
+            patients: ['Clientes', 'Ficha y expediente'],
+            followups: ['Seguimiento', 'Pendientes y avisos'],
+            exams: ['Consulta', 'Recetas y diagnóstico'],
             lab: ['Laboratorio', 'Órdenes y entregas'],
-            inventory: ['Inventario', 'Stock, precios y mínimos'],
-            purchases: ['Compras', 'Proveedores y recepción de stock'],
-            sales: ['Caja / POS', 'Venta directa y ticket promedio'],
-            reports: ['Reportes', 'Indicadores comerciales y clínicos'],
-            settings: ['Administración', 'Doctores, usuarios y seguridad']
+            inventory: ['Stock', 'Inventario y precios'],
+            purchases: ['Compras', 'Proveedores y entradas'],
+            sales: ['Caja', 'Ventas y cobros'],
+            reports: ['Reportes', 'Indicadores'],
+            settings: ['Admin', 'Usuarios y seguridad']
         };
 
         const ROLE_DEFINITIONS = {
@@ -1486,6 +1687,7 @@
         window.onload = () => {
             initLucide();
             setupDate();
+            setupModalShortcuts();
             hydrateStaticSelects();
             checkSession();
             if (!state.user) renderLoginDefaults();
@@ -1495,8 +1697,52 @@
             if (window.lucide) lucide.createIcons();
         }
 
+        function setupModalShortcuts() {
+            document.querySelectorAll('[id^="modal-"]').forEach(modal => {
+                modal.addEventListener('click', event => {
+                    if (event.target === modal) hideModal(modal.id.replace('modal-', ''));
+                });
+            });
+            document.addEventListener('keydown', event => {
+                if (event.key !== 'Escape') return;
+                const openModal = [...document.querySelectorAll('[id^="modal-"].flex')].pop();
+                if (openModal) hideModal(openModal.id.replace('modal-', ''));
+            });
+        }
+
+        function safeStorageGet(key) {
+            try {
+                const value = window.localStorage?.getItem(key);
+                if (value !== null && value !== undefined) return value;
+            } catch (error) {
+                console.warn('Almacenamiento local no disponible para lectura.', error);
+            }
+            return Object.prototype.hasOwnProperty.call(memoryStorage, key) ? memoryStorage[key] : null;
+        }
+
+        function safeStorageSet(key, value) {
+            const stringValue = String(value);
+            memoryStorage[key] = stringValue;
+            try {
+                window.localStorage?.setItem(key, stringValue);
+                return true;
+            } catch (error) {
+                console.warn('Almacenamiento local no disponible para escritura.', error);
+                return false;
+            }
+        }
+
+        function safeStorageRemove(key) {
+            delete memoryStorage[key];
+            try {
+                window.localStorage?.removeItem(key);
+            } catch (error) {
+                console.warn('Almacenamiento local no disponible para borrar.', error);
+            }
+        }
+
         function loadData() {
-            const saved = localStorage.getItem(STORAGE_KEY);
+            const saved = safeStorageGet(STORAGE_KEY);
             if (!saved) return structuredCloneSafe(seedData);
             try {
                 const parsed = JSON.parse(saved);
@@ -1564,7 +1810,7 @@
 
         function persist() {
             const { users, doctors, followUps, suppliers, purchases, stockMovements, auditLog, patients, appointments, exams, inventory, sales, orders, cash } = state;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({ users, doctors, followUps, suppliers, purchases, stockMovements, auditLog, patients, appointments, exams, inventory, sales, orders, cash }));
+            safeStorageSet(STORAGE_KEY, JSON.stringify({ users, doctors, followUps, suppliers, purchases, stockMovements, auditLog, patients, appointments, exams, inventory, sales, orders, cash }));
         }
 
         function structuredCloneSafe(value) {
@@ -1573,6 +1819,45 @@
 
         function renderLoginDefaults() {
             document.getElementById('username').value = 'admin';
+        }
+
+        function fillLogin(username = 'admin', password = '') {
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            if (usernameInput) usernameInput.value = username;
+            if (passwordInput) passwordInput.value = password;
+        }
+
+        function restoreLocalAccess(options = {}) {
+            const defaults = structuredCloneSafe(USERS);
+            state.users = { ...(state.users || {}) };
+            Object.entries(defaults).forEach(([username, account]) => {
+                const current = state.users[username] || {};
+                state.users[username] = {
+                    ...current,
+                    ...account,
+                    password: '1234',
+                    active: true
+                };
+            });
+            state = normalizeState(state);
+            safeStorageRemove(SESSION_KEY);
+            persist();
+            fillLogin('admin', options.fillPassword ? '1234' : '');
+            if (!options.silent) showToast('Acceso local restaurado. Usa admin / 1234.');
+        }
+
+        function resetLocalAccess() {
+            restoreLocalAccess({ fillPassword: true });
+        }
+
+        function enterLocalAdmin() {
+            restoreLocalAccess({ silent: true });
+            const admin = state.users.admin || USERS.admin;
+            state.user = { username: 'admin', name: admin.name, role: admin.role, branch: admin.branch };
+            state.branch = 'Global';
+            safeStorageSet(SESSION_KEY, JSON.stringify(state.user));
+            enterApp();
         }
 
         function setupDate() {
@@ -1626,18 +1911,18 @@
 
             state.user = { username, name: user.name, role: user.role, branch: user.branch };
             state.branch = user.branch === 'Global' ? 'Global' : user.branch;
-            localStorage.setItem(SESSION_KEY, JSON.stringify(state.user));
+            safeStorageSet(SESSION_KEY, JSON.stringify(state.user));
             enterApp();
         }
 
         function checkSession() {
-            const saved = localStorage.getItem(SESSION_KEY);
+            const saved = safeStorageGet(SESSION_KEY);
             if (!saved) return;
             try {
                 const savedUser = JSON.parse(saved);
                 const account = state.users?.[savedUser.username];
                 if (account?.active === false) {
-                    localStorage.removeItem(SESSION_KEY);
+                    safeStorageRemove(SESSION_KEY);
                     return;
                 }
                 state.user = account
@@ -1646,7 +1931,7 @@
                 state.branch = state.user.branch === 'Global' ? 'Global' : state.user.branch;
                 enterApp(false);
             } catch {
-                localStorage.removeItem(SESSION_KEY);
+                safeStorageRemove(SESSION_KEY);
             }
         }
 
@@ -1668,11 +1953,12 @@
             updateBranchLabels();
             applyAccessControls();
             renderAll();
+            setupAppointmentReminderTimer();
             if (greet) showToast(`Bienvenido, ${state.user.name}`);
         }
 
         function logout() {
-            localStorage.removeItem(SESSION_KEY);
+            safeStorageRemove(SESSION_KEY);
             location.reload();
         }
 
@@ -1703,6 +1989,7 @@
             renderPurchaseSelects();
             renderDashboard();
             renderCart();
+            renderAppointmentReminders();
             initLucide();
         }
 
@@ -1782,6 +2069,12 @@
             });
             const headerPatientBtn = document.getElementById('headerNewPatientBtn');
             if (headerPatientBtn) headerPatientBtn.hidden = !userHas('patients.write');
+            const headerSearchBtn = document.getElementById('headerQuickSearchBtn');
+            if (headerSearchBtn) headerSearchBtn.hidden = !userHas('patients.view');
+            const branchWrap = document.getElementById('headerBranchWrap');
+            if (branchWrap) branchWrap.hidden = state.user.branch !== 'Global';
+            const cashChip = document.getElementById('cashBalanceChip');
+            if (cashChip) cashChip.hidden = !(userHas('sales.view') || userHas('reports.view'));
             const inventoryProductBtn = document.getElementById('inventoryNewProductBtn');
             if (inventoryProductBtn) inventoryProductBtn.hidden = !userHas('inventory.write');
             document.querySelectorAll('[data-permission]').forEach(el => {
@@ -1812,6 +2105,19 @@
             return Number(value || 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
         }
 
+        function debounce(fn, delay = 180) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), delay);
+            };
+        }
+
+        const debouncedRenderPatients = debounce(() => renderPatients());
+        const debouncedRenderInventory = debounce(() => renderInventory());
+        const debouncedRenderPOS = debounce(() => renderPOS());
+        const debouncedQuickPatientSearch = debounce(() => renderQuickPatientSearch(), 120);
+
         function formatShortDate(value) {
             if (!value) return 'Sin fecha';
             const [year, month, day] = value.split('-').map(Number);
@@ -1827,6 +2133,41 @@
             const monthDelta = today.getMonth() - birth.getMonth();
             if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birth.getDate())) age--;
             return age;
+        }
+
+        function cleanPhone(value) {
+            return String(value || '').replace(/\D/g, '');
+        }
+
+        function phoneHref(value) {
+            const digits = cleanPhone(value);
+            return digits ? `tel:${digits}` : '#';
+        }
+
+        function whatsappHref(value, patientName = '') {
+            const digits = cleanPhone(value);
+            if (!digits) return '#';
+            const mxNumber = digits.length === 10 ? `52${digits}` : digits;
+            const text = encodeURIComponent(`Hola ${patientName || ''}, le contactamos de la óptica para dar seguimiento a su atención.`);
+            return `https://wa.me/${mxNumber}?text=${text}`;
+        }
+
+        function patientContactActions(patient, compact = false) {
+            const hasPhone = Boolean(cleanPhone(patient?.phone));
+            if (!hasPhone) return '<p class="text-xs font-semibold text-slate-400">Sin teléfono registrado</p>';
+            const labelClass = compact ? 'text-xs' : '';
+            return `
+                <div class="contact-actions flex gap-2">
+                    <a href="${phoneHref(patient.phone)}" class="btn btn-secondary ${labelClass}" aria-label="Llamar a ${escapeHtml(patient.name)}">
+                        <i data-lucide="phone" class="w-4 h-4"></i>
+                        Llamar
+                    </a>
+                    <a href="${whatsappHref(patient.phone, patient.name)}" target="_blank" rel="noopener" class="btn btn-secondary ${labelClass}" aria-label="Enviar WhatsApp a ${escapeHtml(patient.name)}">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        WhatsApp
+                    </a>
+                </div>
+            `;
         }
 
         function recommendedLensForPatient(patient) {
@@ -1894,6 +2235,8 @@
         }
 
         function renderDashboard() {
+            applyAccessControls();
+            renderQuickActions();
             const patients = inScope(state.patients);
             const appointments = inScope(state.appointments);
             const exams = inScope(state.exams);
@@ -1902,20 +2245,29 @@
             const orders = inScope(state.orders);
             const doctors = inScope(state.doctors || []).filter(doctor => doctor.active);
             const followUps = scopedFollowUps();
+            const reminders = getAppointmentReminders();
             const revenue = sales.reduce((sum, sale) => sum + Number(sale.total || 0), 0);
             const activeOrders = orders.filter(order => order.status !== 'Entregado');
             const critical = inventory.filter(item => Number(item.stock) <= Number(item.minStock));
             const today = todayISO();
             const urgentFollowUps = followUps.filter(item => item.status !== 'Completado' && item.dueDate <= today);
 
-            const kpis = [
-                { label: 'Ingresos', value: formatMoney(revenue), icon: 'trending-up', tone: 'text-teal-700', note: `${sales.length} ventas registradas` },
+            const kpis = [];
+            if (userHas('sales.view') || userHas('reports.view')) {
+                kpis.push({ label: 'Ingresos', value: formatMoney(revenue), icon: 'trending-up', tone: 'text-teal-700', note: `${sales.length} ventas registradas` });
+            }
+            kpis.push(
                 { label: 'Citas hoy', value: appointments.filter(item => item.date === today).length, icon: 'calendar-check', tone: 'text-blue-700', note: 'Confirmadas y pendientes' },
-                { label: 'Expedientes', value: patients.length, icon: 'users', tone: 'text-indigo-700', note: `${exams.length} consultas clínicas` },
-                { label: 'Stock crítico', value: critical.length, icon: 'triangle-alert', tone: 'text-amber-700', note: 'Debajo de mínimo' },
+                { label: 'Recordatorios', value: reminders.length, icon: 'bell', tone: 'text-rose-700', note: 'Próximas 24 h' },
+                { label: 'Clientes', value: patients.length, icon: 'users', tone: 'text-indigo-700', note: `${exams.length} consultas clínicas` }
+            );
+            if (userHas('inventory.view')) {
+                kpis.push({ label: 'Stock crítico', value: critical.length, icon: 'triangle-alert', tone: 'text-amber-700', note: 'Debajo de mínimo' });
+            }
+            kpis.push(
                 { label: 'Seguimiento', value: urgentFollowUps.length, icon: 'messages-square', tone: 'text-rose-700', note: 'Vencidos o para hoy' },
                 { label: 'Doctores', value: doctors.length, icon: 'stethoscope', tone: 'text-cyan-700', note: 'Activos por sucursal' }
-            ];
+            );
 
             document.getElementById('kpiGrid').innerHTML = kpis.map(kpi => `
                 <div class="surface surface-hover p-4">
@@ -1931,6 +2283,8 @@
                     <p class="text-xs font-semibold text-slate-500 mt-3">${kpi.note}</p>
                 </div>
             `).join('');
+
+            renderDailyFocus({ patients, appointments, reminders, urgentFollowUps, activeOrders, critical, today });
 
             document.getElementById('todayAppointments').innerHTML = appointments
                 .filter(item => item.date === today)
@@ -1985,7 +2339,133 @@
 
             renderSalesChart();
             renderBranchChart();
+            renderAppointmentReminders();
             initLucide();
+        }
+
+        function renderDailyFocus({ patients, appointments, reminders, urgentFollowUps, activeOrders, critical, today }) {
+            const container = document.getElementById('dailyFocus');
+            if (!container) return;
+
+            const upcomingAppointments = appointments
+                .filter(isActiveAppointment)
+                .map(item => ({ item, dateTime: appointmentDateTime(item), patient: findPatient(item.patientId), doctor: findDoctor(item.doctorId) }))
+                .filter(entry => entry.dateTime >= new Date(new Date().getTime() - 90 * 60000))
+                .sort((a, b) => a.dateTime - b.dateTime);
+            const nextReminder = reminders[0];
+            const nextAppointment = nextReminder ? {
+                item: nextReminder.item,
+                patient: nextReminder.patient,
+                doctor: nextReminder.doctor,
+                label: reminderLabel(nextReminder.minutesUntil)
+            } : upcomingAppointments[0] ? {
+                ...upcomingAppointments[0],
+                label: `${formatShortDate(upcomingAppointments[0].item.date)} · ${upcomingAppointments[0].item.time}`
+            } : null;
+
+            const focusCards = [];
+            if (userHas('appointments.view')) {
+                focusCards.push(nextAppointment ? {
+                    tone: 'focus-card-primary',
+                    icon: 'calendar-clock',
+                    label: 'Siguiente cita',
+                    title: nextAppointment.patient?.name || 'Cliente sin nombre',
+                    meta: `${nextAppointment.label} · ${nextAppointment.item.type}`,
+                    action: "navigate('appointments')",
+                    actionLabel: 'Ver citas'
+                } : {
+                    tone: 'focus-card-primary',
+                    icon: 'calendar-check',
+                    label: 'Agenda',
+                    title: appointments.filter(item => item.date === today).length ? 'Citas de hoy listas' : 'Sin citas para hoy',
+                    meta: appointments.filter(item => item.date === today).length ? 'Revisa horarios y entregas.' : 'Puedes registrar una nueva cita.',
+                    action: "navigate('appointments')",
+                    actionLabel: 'Abrir'
+                });
+            }
+            if (userHas('followups.view')) {
+                focusCards.push({
+                    icon: 'messages-square',
+                    label: 'Seguimiento',
+                    title: urgentFollowUps.length ? `${urgentFollowUps.length} pendiente${urgentFollowUps.length === 1 ? '' : 's'}` : 'Sin pendientes urgentes',
+                    meta: urgentFollowUps[0] ? `${findPatient(urgentFollowUps[0].patientId)?.name || 'Cliente'} · ${urgentFollowUps[0].type}` : 'Todo al día.',
+                    action: "navigate('followups')",
+                    actionLabel: 'Revisar'
+                });
+            }
+            if (userHas('lab.view')) {
+                focusCards.push({
+                    icon: 'flask-conical',
+                    label: 'Laboratorio',
+                    title: activeOrders.length ? `${activeOrders.length} orden${activeOrders.length === 1 ? '' : 'es'} en proceso` : 'Sin órdenes activas',
+                    meta: activeOrders[0] ? `${findPatient(activeOrders[0].patientId)?.name || 'Cliente'} · ${activeOrders[0].status}` : 'Nada pendiente en taller.',
+                    action: "navigate('lab')",
+                    actionLabel: 'Ver lab'
+                });
+            } else if (userHas('patients.view')) {
+                focusCards.push({
+                    icon: 'users',
+                    label: 'Clientes',
+                    title: `${patients.length} ficha${patients.length === 1 ? '' : 's'}`,
+                    meta: 'Consulta historial, receta y seguimiento.',
+                    action: 'openQuickSearch()',
+                    actionLabel: 'Buscar'
+                });
+            }
+            if (userHas('inventory.view') && focusCards.length < 3) {
+                focusCards.push({
+                    icon: 'boxes',
+                    label: 'Stock',
+                    title: critical.length ? `${critical.length} producto${critical.length === 1 ? '' : 's'} bajo mínimo` : 'Inventario sano',
+                    meta: critical[0] ? `${critical[0].name} · ${critical[0].stock}/${critical[0].minStock}` : 'Sin alertas de stock.',
+                    action: "navigate('inventory')",
+                    actionLabel: 'Ver stock'
+                });
+            }
+
+            container.innerHTML = focusCards.slice(0, 3).map(card => `
+                <article class="focus-card ${card.tone || ''}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-black text-teal-700 uppercase tracking-widest">${escapeHtml(card.label)}</p>
+                            <h3 class="text-lg font-black text-slate-950 mt-1 truncate">${escapeHtml(card.title)}</h3>
+                            <p class="text-xs font-semibold text-slate-500 mt-1 truncate">${escapeHtml(card.meta)}</p>
+                        </div>
+                        <span class="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
+                            <i data-lucide="${card.icon}" class="w-5 h-5 text-teal-700"></i>
+                        </span>
+                    </div>
+                    <button onclick="${card.action}" class="btn btn-secondary mt-4">${escapeHtml(card.actionLabel)}</button>
+                </article>
+            `).join('');
+        }
+
+        function renderQuickActions() {
+            const container = document.getElementById('quickActions');
+            if (!container) return;
+            const actions = [
+                userHas('patients.view') && { label: 'Buscar cliente', note: 'Ficha rápida', icon: 'search', action: 'openQuickSearch()' },
+                userHas('appointments.view') && { label: 'Recordatorios', note: 'Citas próximas', icon: 'bell', action: 'openAppointmentReminders()' },
+                userHas('patients.write') && { label: 'Nuevo cliente', note: 'Alta rápida', icon: 'user-plus', action: "showModal('newPatient')" },
+                userHas('appointments.write') && { label: 'Nueva cita', note: 'Agenda', icon: 'calendar-plus', action: "navigate('appointments')" },
+                userHas('exams.write') && { label: 'Consulta', note: 'Receta', icon: 'clipboard-check', action: "navigate('exams')" },
+                userHas('lab.write') && { label: 'Lab', note: 'Orden', icon: 'flask-conical', action: "navigate('lab')" },
+                userHas('sales.write') && { label: 'Caja', note: 'Cobrar', icon: 'shopping-cart', action: "navigate('sales')" },
+                userHas('inventory.write') && { label: 'Stock', note: 'Productos', icon: 'boxes', action: "navigate('inventory')" },
+                userHas('reports.view') && { label: 'Reportes', note: 'Indicadores', icon: 'bar-chart-3', action: "navigate('reports')" }
+            ].filter(Boolean).slice(0, 4);
+
+            container.innerHTML = actions.map(action => `
+                <button onclick="${action.action}" class="surface surface-hover p-4 text-left flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-100 flex items-center justify-center shrink-0">
+                        <i data-lucide="${action.icon}" class="w-5 h-5 text-teal-700"></i>
+                    </span>
+                    <span class="min-w-0">
+                        <span class="block text-sm font-black text-slate-950 truncate">${action.label}</span>
+                        <span class="block text-xs font-semibold text-slate-500 truncate">${action.note}</span>
+                    </span>
+                </button>
+            `).join('');
         }
 
         function renderAppointmentMini(item) {
@@ -2013,6 +2493,160 @@
                     <p class="text-sm font-bold">${escapeHtml(text)}</p>
                 </div>
             `;
+        }
+
+        function appointmentDateTime(item) {
+            const [year, month, day] = String(item.date || todayISO()).split('-').map(Number);
+            const [hour, minute] = String(item.time || '00:00').split(':').map(Number);
+            return new Date(year, (month || 1) - 1, day || 1, hour || 0, minute || 0, 0, 0);
+        }
+
+        function isActiveAppointment(item) {
+            const status = String(item.status || '').toLowerCase();
+            return !status.includes('atendida') && !status.includes('cancel');
+        }
+
+        function reminderLabel(minutesUntil) {
+            if (minutesUntil < -1) return `Vencida hace ${formatReminderDistance(Math.abs(minutesUntil))}`;
+            if (minutesUntil <= 1) return 'Ahora';
+            return `En ${formatReminderDistance(minutesUntil)}`;
+        }
+
+        function formatReminderDistance(minutes) {
+            const rounded = Math.max(1, Math.round(minutes));
+            if (rounded < 60) return `${rounded} min`;
+            const hours = Math.floor(rounded / 60);
+            const mins = rounded % 60;
+            if (!mins) return `${hours} h`;
+            return `${hours} h ${mins} min`;
+        }
+
+        function reminderStatusClass(minutesUntil) {
+            if (minutesUntil < 0 || minutesUntil <= 30) return 'status-rose';
+            if (minutesUntil <= 120) return 'status-amber';
+            return 'status-blue';
+        }
+
+        function getAppointmentReminders() {
+            const now = new Date();
+            return inScope(state.appointments || [])
+                .filter(isActiveAppointment)
+                .map(item => {
+                    const dateTime = appointmentDateTime(item);
+                    const minutesUntil = Math.round((dateTime.getTime() - now.getTime()) / 60000);
+                    return {
+                        item,
+                        dateTime,
+                        minutesUntil,
+                        patient: findPatient(item.patientId),
+                        doctor: findDoctor(item.doctorId)
+                    };
+                })
+                .filter(reminder => reminder.minutesUntil >= -90 && reminder.minutesUntil <= 1440)
+                .sort((a, b) => a.dateTime - b.dateTime);
+        }
+
+        function renderAppointmentReminderCard(reminder, compact = false) {
+            const { item, patient, doctor, minutesUntil } = reminder;
+            const canWriteAppointments = userHas('appointments.write');
+            return `
+                <article class="reminder-row">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="status ${reminderStatusClass(minutesUntil)}">${reminderLabel(minutesUntil)}</span>
+                                <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">${formatShortDate(item.date)} · ${escapeHtml(item.time)}</span>
+                            </div>
+                            <h4 class="font-black text-slate-950 mt-2 truncate">${escapeHtml(patient?.name || 'Paciente sin expediente')}</h4>
+                            <p class="text-xs font-semibold text-slate-500 mt-1 truncate">${escapeHtml(item.type)} · ${escapeHtml(doctor?.name || item.branch || 'Sin doctor')}</p>
+                        </div>
+                        <span class="status ${statusClass(item.status)}">${escapeHtml(item.status)}</span>
+                    </div>
+                    ${compact ? '' : `
+                        <div class="flex flex-col sm:flex-row gap-2 mt-4 pt-4 border-t border-slate-100">
+                            ${patient ? `<button onclick="openPatient(${patient.id})" class="btn btn-secondary"><i data-lucide="folder-open" class="w-4 h-4"></i> Expediente</button>` : ''}
+                            ${canWriteAppointments && item.status !== 'Confirmada' ? `<button onclick="confirmAppointment(${item.id})" class="btn btn-secondary"><i data-lucide="check-check" class="w-4 h-4"></i> Confirmar</button>` : ''}
+                            ${canWriteAppointments ? `<button onclick="completeAppointment(${item.id})" class="btn btn-primary"><i data-lucide="check" class="w-4 h-4"></i> Atendida</button>` : ''}
+                        </div>
+                    `}
+                </article>
+            `;
+        }
+
+        function renderAppointmentReminders() {
+            const reminders = userHas('appointments.view') ? getAppointmentReminders() : [];
+            const count = reminders.length;
+            const badge = document.getElementById('reminderBadge');
+            if (badge) {
+                badge.hidden = count === 0;
+                badge.textContent = count > 9 ? '9+' : String(count);
+            }
+
+            const summary = document.getElementById('appointmentReminderSummary');
+            if (summary) {
+                const urgent = reminders.filter(reminder => reminder.minutesUntil <= 120).length;
+                summary.textContent = count
+                    ? `${count} recordatorio${count === 1 ? '' : 's'} en las próximas 24 horas${urgent ? ` · ${urgent} urgente${urgent === 1 ? '' : 's'}` : ''}.`
+                    : 'Sin citas próximas por recordar en esta vista.';
+            }
+
+            const strip = document.getElementById('appointmentReminderStrip');
+            if (strip) {
+                strip.innerHTML = reminders.slice(0, 3).map(reminder => renderAppointmentReminderCard(reminder, true)).join('')
+                    || emptyState('Sin recordatorios activos', 'bell-off');
+            }
+
+            const modalSummary = document.getElementById('appointmentReminderModalSummary');
+            if (modalSummary) modalSummary.textContent = count ? `${count} recordatorio${count === 1 ? '' : 's'} activo${count === 1 ? '' : 's'} para la sucursal actual.` : 'No hay citas próximas en esta vista.';
+            const modalList = document.getElementById('appointmentReminderModalList');
+            if (modalList) {
+                modalList.innerHTML = reminders.map(reminder => renderAppointmentReminderCard(reminder)).join('')
+                    || emptyState('No tienes recordatorios pendientes', 'bell-off');
+            }
+            initLucide();
+        }
+
+        function openAppointmentReminders() {
+            if (!requirePermission('appointments.view', 'Tu rol no puede ver recordatorios.')) return;
+            renderAppointmentReminders();
+            showModal('appointmentReminders');
+        }
+
+        function requestAppointmentNotificationPermission() {
+            if (!('Notification' in window)) {
+                showToast('Este navegador no permite avisos del sistema.', 'error');
+                return;
+            }
+            Notification.requestPermission().then(permission => {
+                showToast(permission === 'granted' ? 'Avisos del navegador activados.' : 'Puedes seguir usando recordatorios dentro del sistema.', permission === 'granted' ? 'info' : 'error');
+            });
+        }
+
+        function setupAppointmentReminderTimer() {
+            clearInterval(window.appointmentReminderTimer);
+            renderAppointmentReminders();
+            checkDueAppointmentReminders();
+            window.appointmentReminderTimer = setInterval(checkDueAppointmentReminders, 60000);
+        }
+
+        function checkDueAppointmentReminders() {
+            if (!state.user || !userHas('appointments.view')) return;
+            renderAppointmentReminders();
+            const due = getAppointmentReminders().find(reminder => reminder.minutesUntil >= 0 && reminder.minutesUntil <= 15);
+            if (!due) return;
+            const key = `${due.item.id}-${due.item.date}-${due.item.time}`;
+            if (notifiedAppointmentReminders.has(key)) return;
+            notifiedAppointmentReminders.add(key);
+            const patientName = due.patient?.name || 'Paciente';
+            const message = `${patientName} tiene cita ${reminderLabel(due.minutesUntil).toLowerCase()} (${due.item.time}).`;
+            showToast(`Recordatorio: ${message}`);
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    new Notification('OptiCore · Recordatorio de cita', { body: message });
+                } catch (error) {
+                    console.warn('No se pudo mostrar la notificación del sistema.', error);
+                }
+            }
         }
 
         function setAppointmentFilter(filter) {
@@ -2046,7 +2680,7 @@
             persist();
             renderAppointments();
             renderDashboard();
-            showToast('Cita agregada a la agenda.');
+            showToast('Cita agregada. Recordatorio activo.');
         }
 
         function renderAppointments() {
@@ -2076,6 +2710,11 @@
                                 <span class="status status-blue">${escapeHtml(item.type)}</span>
                                 ${canWriteAppointments ? `
                                     <div class="flex gap-2">
+                                        ${item.status !== 'Confirmada' ? `
+                                            <button onclick="confirmAppointment(${item.id})" class="btn btn-secondary btn-icon" title="Confirmar cita" aria-label="Confirmar cita">
+                                                <i data-lucide="check-check" class="w-4 h-4"></i>
+                                            </button>
+                                        ` : ''}
                                         <button onclick="completeAppointment(${item.id})" class="btn btn-secondary btn-icon" title="Marcar atendida" aria-label="Marcar atendida">
                                             <i data-lucide="check" class="w-4 h-4"></i>
                                         </button>
@@ -2088,30 +2727,32 @@
                         </article>
                     `;
                 }).join('') || emptyState('No hay citas en este filtro', 'calendar-x');
+            renderAppointmentReminders();
             initLucide();
         }
 
-        function completeAppointment(id) {
+        function setAppointmentStatus(id, status, auditAction, toastMessage) {
             if (!requirePermission('appointments.write', 'Tu rol no puede modificar citas.')) return;
             const appointment = state.appointments.find(item => item.id === id);
             if (!appointment) return;
-            appointment.status = 'Atendida';
-            logAudit('Cita atendida', `Cita ${appointment.id}`, appointment.branch);
+            appointment.status = status;
+            logAudit(auditAction, `Cita ${appointment.id}`, appointment.branch);
             persist();
             renderAppointments();
             renderDashboard();
-            showToast('Cita marcada como atendida.');
+            showToast(toastMessage);
+        }
+
+        function confirmAppointment(id) {
+            setAppointmentStatus(id, 'Confirmada', 'Cita confirmada', 'Cita confirmada.');
+        }
+
+        function completeAppointment(id) {
+            setAppointmentStatus(id, 'Atendida', 'Cita atendida', 'Cita marcada como atendida.');
         }
 
         function cancelAppointment(id) {
-            if (!requirePermission('appointments.write', 'Tu rol no puede cancelar citas.')) return;
-            const appointment = state.appointments.find(item => item.id === id);
-            if (!appointment) return;
-            appointment.status = 'Cancelada';
-            logAudit('Cita cancelada', `Cita ${appointment.id}`, appointment.branch);
-            persist();
-            renderAppointments();
-            showToast('Cita cancelada.');
+            setAppointmentStatus(id, 'Cancelada', 'Cita cancelada', 'Cita cancelada.');
         }
 
         function setFollowupFilter(filter) {
@@ -2317,6 +2958,7 @@
                         <td class="px-5 py-4">
                             <p class="text-sm font-bold text-slate-700">${escapeHtml(patient.phone)}</p>
                             <p class="text-xs text-slate-500 font-semibold">${escapeHtml(patient.email || 'Sin correo')}</p>
+                            <div class="mt-2">${patientContactActions(patient, true)}</div>
                         </td>
                         <td class="px-5 py-4"><span class="status status-slate">${escapeHtml(patient.branch)}</span></td>
                         <td class="px-5 py-4 text-sm font-bold text-slate-600">${lastExam ? formatShortDate(lastExam.date) : 'Sin consulta'}</td>
@@ -2362,6 +3004,7 @@
                                     <p>${lastExam ? formatShortDate(lastExam.date) : 'Sin consulta'}</p>
                                 </div>
                             </div>
+                            <div class="mt-3">${patientContactActions(patient, true)}</div>
                             <div class="flex gap-2 mt-3">
                                 <button onclick="openPatient(${patient.id})" class="btn btn-secondary flex-1">
                                     <i data-lucide="folder-open" class="w-4 h-4"></i>
@@ -2381,6 +3024,70 @@
             initLucide();
         }
 
+        function openQuickSearch() {
+            if (!requirePermission('patients.view', 'Tu rol no puede buscar expedientes.')) return;
+            showModal('quickSearch');
+            const input = document.getElementById('quickPatientSearch');
+            if (input) {
+                input.value = '';
+                renderQuickPatientSearch();
+                setTimeout(() => input.focus(), 80);
+            }
+        }
+
+        function renderQuickPatientSearch() {
+            const input = document.getElementById('quickPatientSearch');
+            const list = document.getElementById('quickSearchResults');
+            if (!list) return;
+            const term = (input?.value || '').toLowerCase().trim();
+            const patients = inScope(state.patients)
+                .filter(patient => {
+                    const haystack = `${patient.name} ${patient.phone} ${patient.email}`.toLowerCase();
+                    return !term || haystack.includes(term);
+                })
+                .slice(-8)
+                .reverse();
+
+            list.innerHTML = patients.map(patient => {
+                const medical = getPatientMedical(patient);
+                const lastExam = state.exams
+                    .filter(exam => String(exam.pId) === String(patient.id))
+                    .sort((a, b) => b.date.localeCompare(a.date))[0];
+                return `
+                    <article class="border border-slate-200 rounded-lg p-3">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <h4 class="font-black text-slate-950 truncate">${escapeHtml(patient.name)}</h4>
+                                <p class="text-xs font-semibold text-slate-500 mt-1">${escapeHtml(patient.phone || 'Sin teléfono')} · ${escapeHtml(patient.branch)}</p>
+                                <p class="text-xs font-semibold text-slate-500">${escapeHtml(medical.preferredLens || 'Sin lente')} · ${lastExam ? `Última ${formatShortDate(lastExam.date)}` : 'Sin consulta'}</p>
+                            </div>
+                            <span class="status status-blue">${escapeHtml(recommendedLensForPatient(patient))}</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
+                            <div class="sm:col-span-3">${patientContactActions(patient, true)}</div>
+                            <button onclick="hideModal('quickSearch'); openPatient(${patient.id})" class="btn btn-secondary">
+                                <i data-lucide="folder-open" class="w-4 h-4"></i>
+                                Expediente
+                            </button>
+                            ${userHas('followups.write') ? `
+                                <button onclick="hideModal('quickSearch'); startFollowUp(${patient.id})" class="btn btn-secondary">
+                                    <i data-lucide="messages-square" class="w-4 h-4"></i>
+                                    Seguimiento
+                                </button>
+                            ` : ''}
+                            ${userHas('exams.write') ? `
+                                <button onclick="hideModal('quickSearch'); startExam(${patient.id})" class="btn btn-primary">
+                                    <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+                                    Consulta
+                                </button>
+                            ` : ''}
+                        </div>
+                    </article>
+                `;
+            }).join('') || emptyState('No se encontraron pacientes', 'search-x');
+            initLucide();
+        }
+
         function openPatient(id) {
             const patient = findPatient(id);
             if (!patient) return;
@@ -2394,6 +3101,15 @@
             document.getElementById('detailName').textContent = patient.name;
             document.getElementById('detailMeta').textContent = `${patient.branch} · ${patient.phone} · ${patient.email || 'sin correo'}${age ? ` · ${age} años` : ''}`;
             document.getElementById('patientDetailBody').innerHTML = `
+                <div class="md:col-span-2 border border-slate-200 rounded-lg p-4 bg-slate-50">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div>
+                            <p class="label mb-1">Contacto rápido</p>
+                            <p class="text-sm font-bold text-slate-700">${escapeHtml(patient.phone || 'Sin teléfono')} · ${escapeHtml(patient.email || 'Sin correo')}</p>
+                        </div>
+                        ${patientContactActions(patient)}
+                    </div>
+                </div>
                 <div class="border border-slate-200 rounded-lg p-4">
                     <p class="label">Resumen</p>
                     <div class="grid grid-cols-4 gap-3 text-center mb-4">
@@ -3789,7 +4505,7 @@
             if (changedCurrentUser) {
                 state.user = { username, name, role, branch };
                 state.branch = branch === 'Global' ? state.branch : branch;
-                localStorage.setItem(SESSION_KEY, JSON.stringify(state.user));
+                safeStorageSet(SESSION_KEY, JSON.stringify(state.user));
                 enterApp(false);
                 navigate('settings');
             } else {
@@ -3970,10 +4686,13 @@
         }
 
         function exportAuditCSV() {
-            if (!requirePermission('data.manage', 'Tu rol no puede exportar auditoría.')) return;
-            const rows = [['ID', 'Fecha', 'Usuario', 'Sucursal', 'Acción', 'Detalle']]
-                .concat((state.auditLog || []).map(item => [item.id, item.date, item.user, item.branch, item.action, item.detail]));
-            downloadCSV('auditoria_opticore.csv', rows);
+            exportRowsCSV({
+                permission: 'data.manage',
+                deniedMessage: 'Tu rol no puede exportar auditoría.',
+                filename: 'auditoria_opticore.csv',
+                headers: ['ID', 'Fecha', 'Usuario', 'Sucursal', 'Accion', 'Detalle'],
+                rows: () => (state.auditLog || []).map(item => [item.id, item.date, item.user, item.branch, item.action, item.detail])
+            });
         }
 
         function chartColors() {
@@ -4125,10 +4844,18 @@
             showToast('Ticket PDF generado.');
         }
 
+        function exportRowsCSV({ permission, deniedMessage, filename, headers, rows }) {
+            if (!requirePermission(permission, deniedMessage)) return;
+            downloadCSV(filename, [headers].concat(rows()));
+        }
+
         function exportPatientsCSV() {
-            if (!requirePermission('patients.view', 'Tu rol no puede exportar pacientes.')) return;
-            const rows = [['ID', 'Nombre', 'Teléfono', 'Correo', 'Sucursal', 'Tipo de lente', 'Uso visual', 'Ocupación', 'Diabetes', 'Hipertensión', 'Alergias', 'Medicamentos', 'Notas']]
-                .concat(inScope(state.patients).map(patient => {
+            exportRowsCSV({
+                permission: 'patients.view',
+                deniedMessage: 'Tu rol no puede exportar pacientes.',
+                filename: 'pacientes_opticore.csv',
+                headers: ['ID', 'Nombre', 'Telefono', 'Correo', 'Sucursal', 'Tipo de lente', 'Uso visual', 'Ocupacion', 'Diabetes', 'Hipertension', 'Alergias', 'Medicamentos', 'Notas'],
+                rows: () => inScope(state.patients).map(patient => {
                     const medical = getPatientMedical(patient);
                     return [
                         patient.id,
@@ -4145,21 +4872,27 @@
                         medical.medications,
                         medical.notes || patient.notes
                     ];
-                }));
-            downloadCSV('pacientes_opticore.csv', rows);
+                })
+            });
         }
 
         function exportSalesCSV() {
-            if (!requirePermission('reports.view', 'Tu rol no puede exportar reportes.')) return;
-            const rows = [['ID', 'Fecha', 'Sucursal', 'Paciente', 'Método', 'Descuento', 'Total', 'Garantía hasta']]
-                .concat(inScope(state.sales).map(sale => [sale.id, sale.date, sale.branch, findPatient(sale.patientId)?.name || '', sale.method, sale.discount, sale.total, sale.warrantyUntil || '']));
-            downloadCSV('ventas_opticore.csv', rows);
+            exportRowsCSV({
+                permission: 'reports.view',
+                deniedMessage: 'Tu rol no puede exportar reportes.',
+                filename: 'ventas_opticore.csv',
+                headers: ['ID', 'Fecha', 'Sucursal', 'Paciente', 'Metodo', 'Descuento', 'Total', 'Garantia hasta'],
+                rows: () => inScope(state.sales).map(sale => [sale.id, sale.date, sale.branch, findPatient(sale.patientId)?.name || '', sale.method, sale.discount, sale.total, sale.warrantyUntil || ''])
+            });
         }
 
         function exportPurchasesCSV() {
-            if (!requirePermission('purchases.view', 'Tu rol no puede exportar compras.')) return;
-            const rows = [['ID', 'Fecha', 'Sucursal', 'Proveedor', 'Producto', 'Cantidad', 'Costo', 'Estatus', 'Entrega']]
-                .concat(scopedPurchases().map(purchase => [
+            exportRowsCSV({
+                permission: 'purchases.view',
+                deniedMessage: 'Tu rol no puede exportar compras.',
+                filename: 'compras_opticore.csv',
+                headers: ['ID', 'Fecha', 'Sucursal', 'Proveedor', 'Producto', 'Cantidad', 'Costo', 'Estatus', 'Entrega'],
+                rows: () => scopedPurchases().map(purchase => [
                     purchase.id,
                     purchase.createdAt,
                     purchase.branch,
@@ -4169,8 +4902,8 @@
                     purchase.unitCost,
                     purchase.status,
                     purchase.dueDate
-                ]));
-            downloadCSV('compras_opticore.csv', rows);
+                ])
+            });
         }
 
         function downloadCSV(filename, rows) {
@@ -4208,7 +4941,7 @@
             doc.text(`Fecha: ${todayISO()}`, 160, 44);
             doc.text(`Ingresos: ${formatMoney(revenue)}`, 18, 62);
             doc.text(`Ventas: ${sales.length}`, 18, 72);
-            doc.text(`Expedientes: ${patients.length}`, 18, 82);
+            doc.text(`Clientes: ${patients.length}`, 18, 82);
             doc.text(`Órdenes activas: ${activeOrders}`, 18, 92);
             doc.text('Últimas ventas', 18, 112);
             sales.slice(-8).reverse().forEach((sale, index) => {
@@ -4226,6 +4959,7 @@
             if (!modal) return;
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            document.body.classList.add('modal-open');
             updateBranchLabels();
             initLucide();
         }
@@ -4235,6 +4969,9 @@
             if (!modal) return;
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+            if (!document.querySelector('[id^="modal-"].flex')) {
+                document.body.classList.remove('modal-open');
+            }
         }
 
         function showToast(message, type = 'info') {
